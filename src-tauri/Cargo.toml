@@ -1,0 +1,30 @@
+[package]
+name = "mednafen-play"
+version = "0.2.3"
+description = "Mednafen desktop frontend by GameTranslate"
+authors = ["GameTranslate"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+sha2 = "0.10"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+walkdir = "2"
+tempfile = "3"
+
+[dev-dependencies]
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_UI_Shell", "Win32_System_DataExchange"] }
+
+[profile.release]
+strip = true
+lto = "thin"
+

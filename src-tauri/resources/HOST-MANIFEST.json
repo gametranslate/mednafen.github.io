@@ -1,0 +1,6 @@
+{
+  "native/sdl-host.c": "fe1a5e5bfb96aac3899f792f7dfbd3194a0589b062c7e38cd14085367254dfbe",
+  "src-tauri/resources/engine/SDL2.dll": "bf9e30089d3e81971e1fcc53bee990d14953b673f598c67cd70b10a4523279e4",
+  "src-tauri/resources/engine/SDL2_original.dll": "4e9a38bba91a80d4dfa7219cc7e96dfdf6a5f660e16c8fc3b6ad4128e3202e18",
+  "src-tauri/resources/engine/mednafen.exe": "4ac5560a1f0f23de7e86cb8d3550ad06ec327242f7622852da09cafbf3a15bdf"
+}

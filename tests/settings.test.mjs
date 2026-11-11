@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {validateSetting,effectiveValue,parseConfig,configText,keyMapping,mappingLabel} from '../src/settings-utils.mjs';
+const schema=JSON.parse(fs.readFileSync(new URL('../src/data/settings.json',import.meta.url),'utf8'));
+const def=k=>schema.find(d=>d.key===k);
+test('schema has unique keys and every default validates',()=>{assert.equal(new Set(schema.map(d=>d.key)).size,schema.length);assert.equal(schema.length,7908);for(const d of schema)assert.equal(validateSetting(d,d.default),'',d.key)});
+test('global and game scope inheritance and reset',()=>{const d=def('sound.volume');assert.equal(effectiveValue(d,{'sound.volume':'60'},{'sound.volume':'80'}),'60');assert.equal(effectiveValue(d,{}, {'sound.volume':'80'}),'80');assert.equal(effectiveValue(d,{},{}),'100')});
+test('integer and float validation rejects invalid and out of range',()=>{for(const v of ['NaN','Infinity','', '16'])assert.notEqual(validateSetting(def('ffspeed'),v),'');assert.equal(validateSetting(def('affinity.emu'),'18446744073709551615'),'');assert.notEqual(validateSetting(def('affinity.emu'),'18446744073709551616'),'');assert.notEqual(validateSetting(def('sound.volume'),'100\nvideo.fs 1'),'');assert.notEqual(validateSetting(def('sound.volume'),'-1'),'')});
+test('import preserves empty passwords and aliases while reporting bad values',()=>{const r=parseConfig('; comment\nfs 1\nnetplay.password \nsound.volume 999\nunknown 1\n',schema);assert.deepEqual(r.values,{'video.fs':'1','netplay.password':''});assert.deepEqual(r.skipped,['sound.volume','unknown']);assert.deepEqual(parseConfig(configText(r.values),schema).values,r.values)});
+test('physical keyboard codes map to Mednafen SDL scancodes',()=>{assert.equal(keyMapping('KeyZ'),'keyboard 0x0 29');assert.equal(keyMapping('Enter',false,false,true),'keyboard 0x0 40+alt');assert.equal(mappingLabel('keyboard 0x0 62'),'F5');assert.equal(keyMapping('Unknown'),null)});
