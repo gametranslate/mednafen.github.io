@@ -5,7 +5,7 @@ macOS: install pkg-config, sdl2 and flac (for example with Homebrew).
 Build outputs are isolated from the Windows runtime when --output-root is supplied.
 """
 from pathlib import Path
-import argparse, hashlib, json, os, platform, re, shlex, shutil, subprocess, sys, tarfile, urllib.request
+import argparse, hashlib, json, os, platform, re, shlex, shutil, subprocess, sys, tarfile, tempfile, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
@@ -39,8 +39,20 @@ if not archive.exists():
     else: urllib.request.urlretrieve('https://mednafen.github.io/releases/files/' + archive.name, archive)
 assert digest(archive) == expected, 'Upstream source SHA-256 mismatch'
 SOURCE = CACHE / 'mednafen'
-if not SOURCE.exists():
-    with tarfile.open(archive) as tar: tar.extractall(CACHE, filter='data')
+if not (SOURCE/'src/drivers/main.cpp').is_file():
+    # Ubuntu 22.04's tarfile backport checks symlinks relative to the archive
+    # root, incorrectly rejecting this upstream link. Extract ordinary entries
+    # with the data filter, then recreate the one verified, internal symlink.
+    with tempfile.TemporaryDirectory(dir=CACHE) as staging:
+        with tarfile.open(archive) as tar:
+            members = tar.getmembers()
+            links = [(m.name, m.linkname) for m in members if m.issym()]
+            assert links == [('mednafen/include/mednafen', '../src')], links
+            tar.extractall(staging, members=[m for m in members if not m.issym()], filter='data')
+        staged = Path(staging)/'mednafen'
+        (staged/'include/mednafen').symlink_to('../src', target_is_directory=True)
+        if SOURCE.exists(): shutil.rmtree(SOURCE)
+        staged.rename(SOURCE)
 BUILD = CACHE / ('build-' + platform.machine())
 BUILD.mkdir(exist_ok=True)
 env = dict(os.environ)
@@ -66,6 +78,12 @@ if SYSTEM == 'Darwin':
     prefixes = [str(sdl_prefix), output(['brew', '--prefix', 'flac'])]
     env['PKG_CONFIG_PATH'] = ':'.join(str(Path(p)/'lib/pkgconfig') for p in prefixes) + ':' + env.get('PKG_CONFIG_PATH', '')
 sdl_flags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', 'sdl2'], env=env, text=True))
+sdl_version = subprocess.check_output(['pkg-config', '--modversion', 'sdl2'], env=env, text=True).strip()
+sdk_stamp = BUILD/'sdl-sdk.json'
+sdk_identity = json.dumps({'version':sdl_version,'flags':sdl_flags}, sort_keys=True)
+if SYSTEM == 'Darwin' and (BUILD/'Makefile').exists() and (not sdk_stamp.exists() or sdk_stamp.read_text()!=sdk_identity):
+    # Cached objects compiled against sdl2-compat must not survive switching SDKs.
+    run(['make', 'clean'], cwd=BUILD, env=env)
 adapter = BUILD / 'sdl-stream.o'
 run([env.get('CC', 'cc'), '-O2', '-fPIC', *sdl_flags, '-c', ROOT/'native/sdl-stream.c', '-o', adapter], env=env)
 if not (BUILD/'Makefile').exists() or SYSTEM == 'Darwin':
@@ -81,6 +99,7 @@ link_flags = (configured[1] + ' ' if configured else '') + str(adapter) + (' -ld
 # LDFLAGS is not a Make dependency: force relinking after recompiling the adapter.
 (BUILD/'src/mednafen').unlink(missing_ok=True)
 run(['make', '-j' + str(max(1, args.jobs)), 'LDFLAGS=' + link_flags], cwd=BUILD, env=env)
+sdk_stamp.write_text(sdk_identity)
 executable = ENGINE/'mednafen'
 shutil.copy2(BUILD/'src/mednafen', executable)
 executable.chmod(0o755)
@@ -135,7 +154,7 @@ runtime = {p.relative_to(ENGINE).as_posix():digest(p) for p in [executable,*sort
 (ENGINE/'RUNTIME-MANIFEST.json').write_text(json.dumps(runtime,sort_keys=True),encoding='utf-8')
 manifest={'platform':SYSTEM,'architecture':platform.machine(),'upstreamSourceSha256':expected,
           'adapterSourceSha256':digest(ROOT/'native/sdl-stream.c'),'runtime':runtime,
-          'sdlVersion':output(['pkg-config','--modversion','sdl2'])}
+          'sdlVersion':sdl_version}
 (RES/'HOST-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 print('Unix runtime staged:',ENGINE,flush=True)
 run([sys.executable, ROOT/'scripts/generate_settings.py', '--project-root', DEST], env=env)
