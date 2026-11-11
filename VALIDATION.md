@@ -1,4 +1,14 @@
-# Mednafen Play 0.2.3 — Validation, 11 November 2026
+# Mednafen Play 0.3.0 — Validation, 11 November 2026
+
+## Linux/macOS port validation
+
+The Unix adapter builds from the pinned original Mednafen 1.32.1 source without changing emulation code. Runtime binaries and libraries are hashed before packaging, and extracted-package hashes must match before launching tests. Linux tests force GDK/SDL X11 with Xvfb, and macOS tests run on the CI desktop. No tests operate the user's active Windows desktop.
+
+Local Ubuntu 24.04 debug application: PASS on software and OpenGL. Tests verified nonblank pixels from the actual WebView canvas, advancing game frames, F1 save/F2 RTC restoration, F3/Shift+F3 slot selection, Tab retaining UI focus, and measured roughly 1.05x / 4.17x / 1.05x RTC rates before/during/after fast-forward. Blur releases held keys. Native fullscreen hides the sidebar; Esc restores windowed UI, another Esc opens Library, and Now playing resumes the same process. Stop/replay creates a new process, and close leaves neither old nor replay process alive.
+
+Final AppImage/macOS ZIP package validation is recorded separately in `validation-<platform>-<architecture>.json` and CI artifacts. The local debug pass does not establish package or macOS success. An artifact is published only after its extracted-package test reports PASS. Tests use the user-authorized Namco Super Wars ROM; no ROM, profile, save or framebuffer capture is included in public artifacts. The temporary remote fixture is removed after testing.
+
+Limits: synthetic WebView input, dummy audio output and one WonderSwan game do not validate physical keyboards/gamepads, real speakers, every emulated system, complete playthroughs, Wayland, multiple monitors or Gatekeeper first-run behavior. macOS signing is ad-hoc, not Apple notarization. Generated engine settings retain their original advanced English descriptions.
 
 ## 0.2.3 keyboard and settings regression
 
@@ -54,4 +64,4 @@ No automated test touches the user’s normal Windows desktop. The user confirme
 
 Installer extraction is tested, not the complete installer/uninstaller flow or a clean machine without WebView2. Builds are unsigned. Advanced technical descriptions retain upstream English; translations need further native-speaker review.
 
-Linux/macOS/Android do not have functional artifacts. See PORTS.md.
+The Windows results above describe 0.2.3. Linux/macOS use the separate transport and validation described at the top of this document. Android is not supported. See PORTS.md.

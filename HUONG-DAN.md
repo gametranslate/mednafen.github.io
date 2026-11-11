@@ -13,7 +13,7 @@ Giao diện thư viện của GameTranslate, chạy Mednafen 1.32.1 ngay trong k
 7. **Clear library / Xóa thư viện** yêu cầu xác nhận, dừng phiên đang chạy rồi xóa danh sách và cài đặt riêng. ROM, BIOS, bản lưu và cài đặt chung được giữ nguyên.
 8. **Now playing** quay lại game sau khi xem Settings hoặc About. Đổi cài đặt giả lập cần dừng game rồi lưu; ngôn ngữ và sáng/tối thay đổi ngay.
 
-Windows cần Microsoft Edge WebView2 Runtime có sẵn. Các bản không cần trình cài đặt riêng, nhưng lưu dữ liệu trong hồ sơ người dùng, không lưu cạnh tệp chạy. Xem PORTS.md và ghi chú release để biết hệ điều hành tối thiểu. macOS dùng chữ ký ad-hoc, chưa được Apple notarize; nếu bị Gatekeeper chặn, xem hướng dẫn Open Anyway của Apple trong System Settings → Privacy & Security. Linux có thể chạy AppImage không cần FUSE bằng tùy chọn `--appimage-extract-and-run`.
+Windows cần Microsoft Edge WebView2 Runtime có sẵn. Các bản không cần trình cài đặt riêng, nhưng lưu dữ liệu trong hồ sơ người dùng, không lưu cạnh tệp chạy. Xem PORTS.md và ghi chú release để biết hệ điều hành tối thiểu. macOS dùng chữ ký ad-hoc, chưa được Apple notarize; nếu bị Gatekeeper chặn, xem [hướng dẫn Open Anyway của Apple](https://support.apple.com/en-us/102445) trong System Settings → Privacy & Security. Linux có thể chạy AppImage không cần FUSE bằng tùy chọn `--appimage-extract-and-run`.
 
 ## Cài đặt theo cách bạn chơi
 

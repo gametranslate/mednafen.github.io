@@ -73,6 +73,7 @@ libs.mkdir(exist_ok=True)
 if SYSTEM == 'Darwin':
     pending = [(BUILD/'src/mednafen', executable)]
     copied = {}
+    basenames = {}
     while pending:
         original, target = pending.pop(0)
         dependencies = [line.strip().split(' (')[0] for line in output(['otool', '-L', original]).splitlines()[1:]]
@@ -85,8 +86,9 @@ if SYSTEM == 'Darwin':
             assert origin.is_file(), dependency
             destination = libs/origin.name
             if origin not in copied:
-                if destination.exists() and destination.read_bytes()!=origin.read_bytes():
+                if origin.name in basenames and basenames[origin.name] != origin:
                     raise RuntimeError('Conflicting library basename: '+origin.name)
+                basenames[origin.name] = origin
                 shutil.copy2(origin,destination);destination.chmod(0o755)
                 copied[origin]=destination
                 pending.append((origin,destination))
@@ -103,7 +105,9 @@ else:
         if match and match[1].startswith(wanted):
             source=Path(match[2]);assert source.is_file(),line
             shutil.copy2(source,libs/match[1])
-    run(['patchelf','--set-rpath','$ORIGIN/lib',executable])
+    # Match linuxdeploy's origin fallback in advance so bundling is byte-stable.
+    run(['strip','--strip-unneeded',executable])
+    run(['patchelf','--set-rpath','$ORIGIN/lib:$ORIGIN',executable])
     for library in libs.iterdir(): run(['patchelf','--set-rpath','$ORIGIN',library])
 for name in ['COPYING','ChangeLog']:
     shutil.copy2(SOURCE/name,ENGINE/name)

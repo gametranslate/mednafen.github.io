@@ -3,7 +3,7 @@ It is not an official Mednafen release. GameTranslate adds the library, approach
 settings UI, interface translations, appearance controls and window integration.
 Emulation code and original contributions remain owned by their respective authors.
 
-MEDNAFEN 1.32.1 â€” Mednafen developers and contributors
+MEDNAFEN 1.32.1 — Mednafen developers and contributors
 GNU GPL version 2: engine/COPYING. Windows preserves the original executable.
 Linux/macOS compile the original emulation source with GameTranslate's separately
 written display/input adapter linked into the executable. This is a custom build.
@@ -17,7 +17,7 @@ Upstream AUTHORS is empty; no individual is asserted to be the sole emulator aut
 The website repository's license metadata is not the license of the bundled engine.
 If you enjoy the emulator, please consider starring its official GitHub project.
 
-SDL â€” Sam Lantinga and SDL contributors, zlib license (SDL-LICENSE.txt).
+SDL — Sam Lantinga and SDL contributors, zlib license (SDL-LICENSE.txt).
 On Windows the upstream DLL is preserved as SDL2_original.dll; SDL2.dll is the
 separate GameTranslate host adapter using SDL 2.28.5 headers. Linux/macOS link our
 display adapter and load the platform SDL library; its version is recorded in
@@ -26,11 +26,11 @@ and input. It is not an upstream SDL release. Complete adapter source and build
 scripts are included in the frontend source release/tag.
 https://github.com/libsdl-org/SDL
 
-Tauri â€” Tauri Programme within the Commons Conservancy; MIT / Apache-2.0.
+Tauri — Tauri Programme within the Commons Conservancy; MIT / Apache-2.0.
 https://github.com/tauri-apps/tauri
-React â€” Meta Platforms, Inc. and affiliates; MIT.
+React — Meta Platforms, Inc. and affiliates; MIT.
 https://github.com/facebook/react
-Lucide â€” Lucide contributors; ISC; Feather by Cole Bemis, MIT.
+Lucide — Lucide contributors; ISC; Feather by Cole Bemis, MIT.
 https://github.com/lucide-icons/lucide
 Complete notices for bundled frontend/dependency code: FRONTEND-LICENSES.txt.
 

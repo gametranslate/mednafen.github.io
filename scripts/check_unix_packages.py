@@ -44,6 +44,14 @@ assert len(manifests)==1,manifests
 for name,expected in json.loads(manifests[0].read_text()).items():
     path=manifests[0].parent/name
     assert hashlib.sha256(path.read_bytes()).hexdigest()==expected,'Packager changed engine runtime: '+name
+fixture=Path(env['MEDNAFEN_PLAY_TEST_ROM'])
+fixture_hash=hashlib.sha256(fixture.read_bytes()).digest()
+for path in extracted.rglob('*'):
+    if not path.is_file():continue
+    assert path.suffix.lower() not in {'.wsc','.ws','.rom','.sav','.state','.mc0','.mc1'},'Private game data in package: '+str(path)
+    assert path.name not in {'library.json','mednafen.cfg','play-profile.cfg','ui-result.json'},'Profile in package: '+str(path)
+    if path.stat().st_size==fixture.stat().st_size:
+        assert hashlib.sha256(path.read_bytes()).digest()!=fixture_hash,'Fixture in package: '+str(path)
 subprocess.run(command,check=True,env=env,cwd=ROOT)
 if system=='Linux':shutil.copy2(package,destination);destination.chmod(0o755)
 report={'status':'PASS','platform':system,'architecture':arch,'package':destination.name,'bytes':destination.stat().st_size,'sha256':hashlib.sha256(destination.read_bytes()).hexdigest(),'runtimeManifestVerified':True,'testedExtractedPackage':True,'romNotIncluded':True}
