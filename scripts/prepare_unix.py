@@ -46,13 +46,29 @@ BUILD.mkdir(exist_ok=True)
 env = dict(os.environ)
 if SYSTEM == 'Darwin':
     env.setdefault('MACOSX_DEPLOYMENT_TARGET', '13.0')
-    # Homebrew keeps some formulae keg-only; pkg-config needs their metadata.
-    prefixes = [output(['brew', '--prefix', formula]) for formula in ['sdl2', 'flac']]
+    # Homebrew's sdl2 now resolves to sdl2-compat (with a runtime SDL3 dlopen).
+    # Build real SDL2 so the packaged engine has no undeclared SDL3 dependency.
+    sdl_archive = CACHE/'SDL2-2.32.10.tar.gz'
+    if not sdl_archive.exists():
+        urllib.request.urlretrieve('https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.tar.gz', sdl_archive)
+    assert digest(sdl_archive) == '5f5993c530f084535c65a6879e9b26ad441169b3e25d789d83287040a9ca5165'
+    sdl_source = CACHE/'SDL2-2.32.10'
+    if not sdl_source.exists():
+        with tarfile.open(sdl_archive) as tar: tar.extractall(CACHE, filter='data')
+    sdl_build = CACHE/'sdl2-build'
+    sdl_build.mkdir(exist_ok=True)
+    sdl_prefix = CACHE/'sdl2-runtime'
+    if not (sdl_prefix/'lib/libSDL2.dylib').exists():
+        run([sdl_source/'configure', '--prefix='+str(sdl_prefix), '--disable-static', '--disable-sdl2-config-rpath'], cwd=sdl_build, env=env)
+        run(['make', '-j'+str(max(1,args.jobs))], cwd=sdl_build, env=env)
+        run(['make', 'install'], cwd=sdl_build, env=env)
+    env['PATH'] = str(sdl_prefix/'bin')+os.pathsep+env['PATH']
+    prefixes = [str(sdl_prefix), output(['brew', '--prefix', 'flac'])]
     env['PKG_CONFIG_PATH'] = ':'.join(str(Path(p)/'lib/pkgconfig') for p in prefixes) + ':' + env.get('PKG_CONFIG_PATH', '')
 sdl_flags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', 'sdl2'], env=env, text=True))
 adapter = BUILD / 'sdl-stream.o'
 run([env.get('CC', 'cc'), '-O2', '-fPIC', *sdl_flags, '-c', ROOT/'native/sdl-stream.c', '-o', adapter], env=env)
-if not (BUILD/'Makefile').exists():
+if not (BUILD/'Makefile').exists() or SYSTEM == 'Darwin':
     configure = [SOURCE/'configure', '--disable-dependency-tracking', '--disable-nls', '--disable-jack']
     if SYSTEM == 'Darwin':
         architecture = 'aarch64' if platform.machine() == 'arm64' else platform.machine()

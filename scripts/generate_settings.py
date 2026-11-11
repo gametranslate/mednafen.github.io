@@ -19,6 +19,8 @@ dump = cache / 'settings.def'
 home = cache / 'schema-home'
 home.mkdir(exist_ok=True)
 env = dict(os.environ, MEDNAFEN_HOME=str(home), MEDNAFEN_NOPOPUPS='1')
+if os.name != 'nt':
+    env.update(SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy', SDL_MAC_BACKGROUND_APP='1')
 dump.unlink(missing_ok=True)
 # Mednafen returns -1 after successfully handling dump-only commands (main.cpp).
 result = subprocess.run([str(executable), '-dump_settings_def', str(dump)], env=env, cwd=home,
