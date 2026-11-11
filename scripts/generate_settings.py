@@ -22,7 +22,7 @@ env = dict(os.environ, MEDNAFEN_HOME=str(home), MEDNAFEN_NOPOPUPS='1')
 dump.unlink(missing_ok=True)
 # Mednafen returns -1 after successfully handling dump-only commands (main.cpp).
 result = subprocess.run([str(executable), '-dump_settings_def', str(dump)], env=env, cwd=home,
-                        creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+                        creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0, timeout=60)
 if not dump.exists():
     raise RuntimeError('Settings export failed: ' + str(result.returncode))
 lines = dump.read_text(encoding='utf-8').splitlines()
