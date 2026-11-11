@@ -4,9 +4,12 @@ settings UI, interface translations, appearance controls and window integration.
 Emulation code and original contributions remain owned by their respective authors.
 
 MEDNAFEN 1.32.1 — Mednafen developers and contributors
-GNU GPL version 2: engine/COPYING. The Mednafen executable is byte-for-byte unchanged.
+GNU GPL version 2: engine/COPYING. Windows preserves the original executable.
+Linux/macOS compile the original emulation source with GameTranslate's separately
+written display/input adapter linked into the executable. This is a custom build.
 Full individual copyright notices: engine/Documentation/mednafen.html, Legal section.
-Exact corresponding source included in mednafen-1.32.1.tar.xz.
+Original emulation source is included in mednafen-1.32.1.tar.xz. Adapter source and
+build scripts are included in the frontend source release/tag.
 https://mednafen.github.io/
 https://github.com/mednafen/mednafen.github.io (official website/distribution repository)
 https://mednafen.github.io/releases/files/mednafen-1.32.1.tar.xz
@@ -15,10 +18,12 @@ The website repository's license metadata is not the license of the bundled engi
 If you enjoy the emulator, please consider starring its official GitHub project.
 
 SDL — Sam Lantinga and SDL contributors, zlib license (SDL-LICENSE.txt).
-The upstream DLL is preserved as SDL2_original.dll. SDL2.dll is a separately written
-GameTranslate host adapter, built using SDL 2.28.5 headers. It forwards SDL exports
-and adapts window placement, input focus and presentation. It is not an upstream SDL
-release. Its complete source and build script are included in the frontend source ZIP.
+On Windows the upstream DLL is preserved as SDL2_original.dll; SDL2.dll is the
+separate GameTranslate host adapter using SDL 2.28.5 headers. Linux/macOS link our
+display adapter and load the platform SDL library; its version is recorded in
+HOST-MANIFEST.json. The adapter forwards SDL calls and integrates presentation
+and input. It is not an upstream SDL release. Complete adapter source and build
+scripts are included in the frontend source release/tag.
 https://github.com/libsdl-org/SDL
 
 Tauri — Tauri Programme within the Commons Conservancy; MIT / Apache-2.0.

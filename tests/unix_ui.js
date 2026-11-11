@@ -6,7 +6,9 @@
  const buttons=name=>[...document.querySelectorAll('button')].filter(b=>b.textContent.trim()===name);
  const click=async name=>{await wait(()=>buttons(name).some(b=>!b.disabled),'button '+name);buttons(name).findLast(b=>!b.disabled).click();};
  const event=(code,down,shift=false)=>window.dispatchEvent(new KeyboardEvent(down?'keydown':'keyup',{code,key:code,shiftKey:shift,bubbles:true,cancelable:true}));
- const press=async(code,shift=false)=>{event(code,true,shift);await delay(110);event(code,false,shift);await delay(100);};
+ // Mednafen derives held modifiers from their key events, just like a physical
+ // keyboard. A shiftKey flag alone is not a Shift key press.
+ const press=async(code,shift=false)=>{if(shift)event('ShiftLeft',true,true);event(code,true,shift);await delay(110);event(code,false,shift);if(shift)event('ShiftLeft',false);await delay(100);};
  const samples=[],checks=[],errors=[];
  window.addEventListener('error',e=>errors.push(e.message));
  window.addEventListener('unhandledrejection',e=>errors.push(String(e.reason)));

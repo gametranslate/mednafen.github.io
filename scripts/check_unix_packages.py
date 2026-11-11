@@ -15,7 +15,7 @@ if system=='Linux':
     subprocess.run([str(package),'--appimage-extract'],cwd=QA,check=True,stdout=subprocess.DEVNULL)
     extracted=QA/'squashfs-root'
     executable=extracted/'AppRun'
-    env.update(APPDIR=str(extracted),MEDNAFEN_PLAY_TEST_EXE=str(executable),MEDNAFEN_PLAY_EXPECT_RESOURCE_ROOT=str(extracted))
+    env.update(APPDIR=str(extracted),MEDNAFEN_PLAY_TEST_EXE=str(executable),MEDNAFEN_PLAY_EXPECT_RESOURCE_ROOT=str(extracted),GDK_BACKEND='x11',SDL_VIDEODRIVER='x11')
     command=['xvfb-run','-a','-s','-screen 0 1280x960x24','dbus-run-session','--','python3',str(ROOT/'tests/unix_ui.spec.py')]
     destination=RELEASE/f'Mednafen-Play-{VERSION}-linux-{arch}.AppImage'
 else:

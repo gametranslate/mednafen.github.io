@@ -5,7 +5,7 @@ macOS: install pkg-config, sdl2 and flac (for example with Homebrew).
 Build outputs are isolated from the Windows runtime when --output-root is supplied.
 """
 from pathlib import Path
-import argparse, hashlib, json, os, platform, re, shlex, shutil, subprocess, tarfile, urllib.request
+import argparse, hashlib, json, os, platform, re, shlex, shutil, subprocess, sys, tarfile, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
@@ -62,6 +62,8 @@ if not (BUILD/'Makefile').exists():
 # source stays intact; SDL symbols are resolved with dlsym(RTLD_NEXT).
 configured = re.search(r'^LDFLAGS\s*=\s*(.*)$', (BUILD/'Makefile').read_text(), re.M)
 link_flags = (configured[1] + ' ' if configured else '') + str(adapter) + (' -ldl' if SYSTEM == 'Linux' else '')
+# LDFLAGS is not a Make dependency: force relinking after recompiling the adapter.
+(BUILD/'src/mednafen').unlink(missing_ok=True)
 run(['make', '-j' + str(max(1, args.jobs)), 'LDFLAGS=' + link_flags], cwd=BUILD, env=env)
 executable = ENGINE/'mednafen'
 shutil.copy2(BUILD/'src/mednafen', executable)
@@ -116,3 +118,4 @@ manifest={'platform':SYSTEM,'architecture':platform.machine(),'upstreamSourceSha
           'sdlVersion':output(['pkg-config','--modversion','sdl2'])}
 (RES/'HOST-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 print('Unix runtime staged:',ENGINE,flush=True)
+run([sys.executable, ROOT/'scripts/generate_settings.py', '--project-root', DEST], env=env)
