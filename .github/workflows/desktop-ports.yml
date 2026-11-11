@@ -106,6 +106,8 @@ jobs:
             release/*
             .cache/unix-qa/*.json
             .cache/unix-qa/*.log
+            .cache/unix-engine-qa/*.json
+            .cache/unix-engine-qa/*.log
             engine-build.log
           include-hidden-files: true
           if-no-files-found: warn

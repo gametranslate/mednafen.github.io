@@ -59,8 +59,11 @@ for path in extracted.rglob('*'):
 if not args.skip_game_tests:
     assert fixture_hash,'Supply .cache/fixtures/test.wsc or explicitly use --skip-game-tests'
     subprocess.run(command,check=True,env=env,cwd=ROOT)
+    env['MEDNAFEN_PLAY_ENGINE']=str(manifests[0].parent/'mednafen')
+    subprocess.run([*command[:-1],str(ROOT/'tests/unix_engine.spec.py')],check=True,env=env,cwd=ROOT)
 if system=='Linux':shutil.copy2(package,destination);destination.chmod(0o755)
 report={'status':'NOT_RUN' if args.skip_game_tests else 'PASS','platform':system,'architecture':arch,'package':destination.name,'bytes':destination.stat().st_size,'sha256':hashlib.sha256(destination.read_bytes()).hexdigest(),'runtimeManifestVerified':True,'testedExtractedPackage':not args.skip_game_tests,'romNotIncluded':True}
+report['nonSilentAudioVerified']=not args.skip_game_tests
 if system=='Darwin':report['minimumMacOS']=minimum;report['signing']='ad-hoc';report['notarized']=False
 (RELEASE/f'validation-{system.lower()}-{arch}.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2),flush=True)
