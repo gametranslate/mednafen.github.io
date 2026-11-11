@@ -2,6 +2,9 @@
  * emulation sources are unchanged. SDL still owns audio and game controllers.
  * Frames travel through a private Unix socket to the application's canvas.
  * No foreign window reparenting, visible SDL window or desktop input hooks. */
+#if defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <dlfcn.h>
