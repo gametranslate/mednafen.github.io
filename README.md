@@ -14,7 +14,7 @@ See [the Vietnamese user guide](HUONG-DAN.md), [validation](VALIDATION.md) and [
 
 ## Development
 
-On Linux or macOS, install the native dependencies listed in `.github/workflows/desktop-ports.yml`, plus Node 22+, Python 3.12+ and stable Rust. Use a separate checkout from Windows so platform engines cannot be mixed:
+On Linux or macOS, install the native dependencies listed in `.github/workflows/desktop-ports.yml`, plus Node 22+, Python 3.12+ (or Ubuntu's updated Python 3.10 with `tarfile.data_filter`) and stable Rust. macOS preparation builds genuine SDL2 2.32.10 from its verified upstream source. Use a separate checkout from Windows so platform engines cannot be mixed:
 
 ```sh
 python3 scripts/prepare_unix.py --jobs 3

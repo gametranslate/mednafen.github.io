@@ -3,7 +3,7 @@ import hashlib,json,os,time
 from pathlib import Path
 from playwright.sync_api import sync_playwright,expect
 from private_desktop import PrivateDesktop,ROOT,u
-ROM=Path(os.environ.get('MEDNAFEN_PLAY_TEST_ROM','D:/Workspace/WSC/Namco Super Wars (Japan)/Namco Super Wars (Japan).wsc'))
+ROM=Path(os.environ['MEDNAFEN_PLAY_TEST_ROM'])
 EXE=Path(os.environ.get('MEDNAFEN_PLAY_TEST_EXE',str(ROOT/'src-tauri/target/debug/mednafen-play.exe')))
 digest=hashlib.sha256(ROM.read_bytes()).hexdigest()
 with sync_playwright() as pw:

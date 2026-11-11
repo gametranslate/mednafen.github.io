@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright, expect
 from private_desktop import PrivateDesktop,ROOT,u,k,W
-ROM=Path(os.environ.get('MEDNAFEN_PLAY_TEST_ROM','D:/Workspace/WSC/Namco Super Wars (Japan)/Namco Super Wars (Japan).wsc'))
+ROM=Path(os.environ['MEDNAFEN_PLAY_TEST_ROM'])
 EXE=Path(os.environ.get('MEDNAFEN_PLAY_TEST_EXE',str(ROOT/'src-tauri/target/debug/mednafen-play.exe')))
 digest=hashlib.sha256(ROM.read_bytes()).hexdigest()
 

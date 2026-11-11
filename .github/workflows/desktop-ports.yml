@@ -23,7 +23,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.runners || '["ubuntu-22.04","macos-15","macos-15-intel"]') }}
+        # ARM can be requested explicitly when GitHub runner capacity returns.
+        os: ${{ fromJSON(inputs.runners || '["ubuntu-22.04","macos-15-intel"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 75
     # Access the user-authorized fixture stored in a temporary draft release.
@@ -46,16 +47,17 @@ jobs:
         if: runner.os == 'Linux'
         timeout-minutes: 12
         run: |
-          # The Azure mirror can time out once per package; use Ubuntu's public mirror.
+          # This signed Ubuntu mirror is reachable from the build environment.
           sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://mirrors.edge.kernel.org/ubuntu|g' /etc/apt/apt-mirrors.txt /etc/apt/sources.list
           sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
-          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends build-essential pkg-config libsdl2-dev libflac-dev libasound2-dev zlib1g-dev libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev xvfb dbus-x11 xauth
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends build-essential pkg-config libsdl2-dev libflac-dev libasound2-dev zlib1g-dev libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev xvfb dbus-x11 xauth file
       - name: macOS dependencies
         if: runner.os == 'macOS'
-        run: brew install pkg-config sdl2 flac
+        run: brew install pkg-config flac
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+          cache-on-failure: true
       - uses: actions/cache/restore@v4
         id: engine-cache
         with:

@@ -9,6 +9,7 @@ OUT.mkdir(exist_ok=True)
 UPSTREAM = ROOT/'src-tauri/resources/mednafen-1.32.1.tar.xz'
 assert hashlib.sha256(UPSTREAM.read_bytes()).hexdigest() == 'de7eb94ab66212ae7758376524368a8ab208234b33796625ca630547dbc83832'
 prefix = f'Mednafen-Play-{VERSION}-source/'
+commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
 source = subprocess.check_output(['git', 'archive', '--format=zip', 'HEAD'], cwd=ROOT)
 allowed = {'.github', 'native', 'public', 'scripts', 'src', 'src-tauri', 'tests'}
 with zipfile.ZipFile(io.BytesIO(source)) as original:
@@ -26,4 +27,5 @@ with zipfile.ZipFile(io.BytesIO(source)) as original:
                 info.compress_type = zipfile.ZIP_DEFLATED
                 archive.writestr(info, original.read(item))
         archive.write(UPSTREAM, prefix+'src-tauri/resources/'+UPSTREAM.name)
+        archive.writestr(prefix+'SOURCE-COMMIT.txt', commit+'\n')
 print(target.name, target.stat().st_size, hashlib.sha256(target.read_bytes()).hexdigest())

@@ -32,7 +32,7 @@ Mỗi mục phổ biến có giải thích bằng ngôn ngữ giao diện. **Chi
 | Thư mục | Vị trí BIOS, bản lưu, save state, ảnh chụp và các dữ liệu khác |
 | Theo hệ máy | Vùng máy và các tùy chọn riêng |
 | Chơi qua mạng | Máy chủ, cổng, tên người chơi và mã nhóm |
-| Tất cả thiết lập | Toàn bộ 7.908 khóa của Mednafen 1.32.1, bao gồm ánh xạ nút |
+| Tất cả thiết lập | Toàn bộ khóa của Mednafen 1.32.1 trên nền tảng đang dùng, bao gồm ánh xạ nút |
 
 Ô **Tìm cài đặt** tìm cả tên tiếng Việt và khóa như sound.volume. Các mô tả chuyên sâu chưa được dịch vẫn giữ tiếng Anh gốc.
 
@@ -80,6 +80,7 @@ Khi đổi bản, tự đóng ứng dụng cũ rồi chạy bản mới; không 
 - Khi vùng game đang mở, Tab và các phím chơi game được gửi tới Mednafen; Tab không nhảy qua các nút giao diện. Giữ Tab để tua nhanh, thả ra để trở về tốc độ thường. Mở menu hoặc chuyển ứng dụng sẽ nhả các phím đang giữ.
 - Mũi tên: di chuyển. Z/X, A/S: các nút hành động; Q/W: nút vai trên các tay cầm thông dụng. Enter: Start; Shift phải: Select. Xem ánh xạ đầy đủ cho từng hệ máy trong Settings → Controls. WonderSwan dùng mũi tên cho cụm X và WASD cho cụm Y. Mega Drive/Saturn dùng Z/X/C và A/S/D cho sáu nút.
 - F1 lưu nhanh vào ô hiện tại; F2 tải ô hiện tại; F3 sang ô tiếp theo; Shift + F3 về ô trước. Chuyển ô không tự lưu hoặc tải. Các phím này chỉ áp dụng cho save state, không thay cách lưu trong menu của game.
+- Trên bàn phím Apple, nếu F1–F3 đang điều khiển chức năng hệ thống, giữ thêm Fn/Globe hoặc bật chế độ phím chức năng chuẩn trong System Settings → Keyboard → Keyboard Shortcuts → Function Keys. Xem [hướng dẫn của Apple](https://support.apple.com/en-il/102439). Trên Mac, Alt tương ứng với Option.
 - Esc thoát fullscreen; Esc khi đang ở chế độ cửa sổ đưa về thư viện nhưng giữ game chạy. Alt + Enter đổi fullscreen. Alt + F4 đóng ứng dụng và dừng game bình thường. Các menu Settings vẫn dùng Tab và nhập chữ như thường.
 - Các phím gốc bị trùng đã chuyển: Ctrl + F1 mở trợ giúp Mednafen; Ctrl + F2 cấu hình phím lệnh; Ctrl + Shift + F2 thêm ánh xạ; Ctrl + F3 phát hiện nút trục; Ctrl + Shift + F3 nhận lại tay cầm. F12 vẫn là phím dừng game của Mednafen.
 - Cấu hình phím đã tùy chỉnh được giữ. Để thay bằng bộ mới, chọn hệ máy trong Settings → Controls → Use recommended keys, dừng game nếu đang chạy rồi Save settings.

@@ -1,7 +1,7 @@
 """Build the pinned Mednafen source with our Unix display adapter and stage its runtime.
 
 Linux: install build-essential/pkg-config/libsdl2-dev/libflac-dev/zlib1g-dev/libasound2-dev.
-macOS: install pkg-config, sdl2 and flac (for example with Homebrew).
+macOS: install pkg-config and flac (for example with Homebrew); SDL2 is built below.
 Build outputs are isolated from the Windows runtime when --output-root is supplied.
 """
 from pathlib import Path

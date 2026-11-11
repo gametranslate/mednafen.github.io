@@ -76,6 +76,9 @@ fn receive(listener: &UnixListener, shared: &Connection) -> std::io::Result<()> 
             Err(e) => return Err(e),
         }
     };
+    // macOS inherits O_NONBLOCK from the listener; Linux does not. Frame reads
+    // must wait for complete messages instead of treating EAGAIN as disconnect.
+    stream.set_nonblocking(false)?;
     stream.set_read_timeout(Some(Duration::from_secs(10)))?;
     stream.set_write_timeout(Some(Duration::from_millis(250)))?;
     let mut hello = [0u8; 8];
@@ -179,6 +182,37 @@ pub fn tick(app: &tauri::AppHandle) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn accepts_delayed_fragmented_messages_from_nonblocking_listener() {
+        let directory = tempfile::Builder::new().prefix("mp-socket-test-").tempdir_in("/tmp").unwrap();
+        let path = directory.path().join("display.sock");
+        let listener = UnixListener::bind(&path).unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let shared = Arc::new(Connection::default());
+        let receiver_state = shared.clone();
+        let receiver = std::thread::spawn(move || receive(&listener, &receiver_state));
+        let mut client = UnixStream::connect(path).unwrap();
+        client.set_write_timeout(Some(Duration::from_secs(2))).unwrap();
+        std::thread::sleep(Duration::from_millis(40));
+        client.write_all(b"MP").unwrap();
+        std::thread::sleep(Duration::from_millis(40));
+        client.write_all(&[b'H', b'1', 123, 0, 0, 0]).unwrap();
+        let mut header = [0u8; 24];
+        header[..4].copy_from_slice(b"MPF1");
+        header[4..8].copy_from_slice(&1u32.to_le_bytes());
+        header[8..12].copy_from_slice(&1u32.to_le_bytes());
+        header[12..16].copy_from_slice(&4u32.to_le_bytes());
+        header[16..24].copy_from_slice(&1u64.to_le_bytes());
+        client.write_all(&header[..7]).unwrap();
+        std::thread::sleep(Duration::from_millis(40));
+        client.write_all(&header[7..]).unwrap();
+        client.write_all(&[12, 34, 56, 255]).unwrap();
+        client.shutdown(Shutdown::Write).unwrap();
+        assert_eq!(receiver.join().unwrap().unwrap_err().kind(), std::io::ErrorKind::UnexpectedEof);
+        assert_eq!(shared.pid.load(Ordering::SeqCst), 123);
+        assert_eq!(shared.frames.load(Ordering::SeqCst), 1);
+        assert_eq!(&shared.latest.lock().unwrap()[16..], &[12, 34, 56, 255]);
+    }
     #[test]
     fn rejects_bad_or_oversized_frames_before_allocation() {
         let mut h = [0u8; 24]; h[..4].copy_from_slice(b"MPF1");
