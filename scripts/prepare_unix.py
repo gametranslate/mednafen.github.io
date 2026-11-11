@@ -150,6 +150,21 @@ shutil.copytree(SOURCE/'Documentation',ENGINE/'Documentation',dirs_exist_ok=True
 for name in ['THIRD-PARTY.txt','SDL-LICENSE.txt','FRONTEND-LICENSES.txt']:
     original=ROOT/'src-tauri/resources'/name
     if original.resolve()!=(RES/name).resolve(): shutil.copy2(original,RES/name)
+if SYSTEM == 'Darwin':
+    # The Mac runtime uses a newer SDL than the unchanged Windows distribution.
+    # Preserve the exact notice from the checksum-verified SDL source archive.
+    shutil.copy2(sdl_source/'LICENSE.txt',RES/'SDL-LICENSE.txt')
+    notices=ENGINE/'licenses'
+    notices.mkdir(exist_ok=True)
+    for formula in ['flac','libogg']:
+        prefix=Path(output(['brew','--prefix',formula]))
+        files=sorted(p for p in prefix.rglob('*') if p.is_file()
+                     and p.name.upper().startswith(('COPYING','COPYRIGHT','LICENSE')))
+        assert files,'Missing installed dependency notices: '+formula
+        for notice in files:
+            target=notices/formula/notice.relative_to(prefix)
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(notice,target)
 runtime = {p.relative_to(ENGINE).as_posix():digest(p) for p in [executable,*sorted(libs.iterdir())]}
 (ENGINE/'RUNTIME-MANIFEST.json').write_text(json.dumps(runtime,sort_keys=True),encoding='utf-8')
 manifest={'platform':SYSTEM,'architecture':platform.machine(),'upstreamSourceSha256':expected,

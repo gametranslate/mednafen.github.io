@@ -25,6 +25,9 @@ HOST-MANIFEST.json. The adapter forwards SDL calls and integrates presentation
 and input. It is not an upstream SDL release. Complete adapter source and build
 scripts are included in the frontend source release/tag.
 https://github.com/libsdl-org/SDL
+The macOS package carries the exact SDL 2.32.10 notice, plus the installed
+FLAC/libogg dependency notices under engine/licenses. Linux AppImage dependency
+notices are included under usr/share/doc inside the extracted package.
 
 Tauri — Tauri Programme within the Commons Conservancy; MIT / Apache-2.0.
 https://github.com/tauri-apps/tauri

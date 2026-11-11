@@ -45,6 +45,11 @@ else:
     command=['python3',str(ROOT/'tests/unix_ui.spec.py')]
 manifests=list(extracted.rglob('RUNTIME-MANIFEST.json'))
 assert len(manifests)==1,manifests
+if system=='Darwin':
+    resources=manifests[0].parent.parent
+    assert hashlib.sha256((resources/'SDL-LICENSE.txt').read_bytes()).hexdigest()=='97f35b302b361680ec1e891e95d2d52097bb95abff361434916d99dc1305f127','SDL notice differs from pinned 2.32.10 source'
+    for dependency in ['flac','libogg']:
+        assert any((manifests[0].parent/'licenses'/dependency).rglob('*')),'Missing dependency notice: '+dependency
 for name,expected in json.loads(manifests[0].read_text()).items():
     path=manifests[0].parent/name
     assert hashlib.sha256(path.read_bytes()).hexdigest()==expected,'Packager changed engine runtime: '+name

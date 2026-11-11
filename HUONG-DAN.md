@@ -4,7 +4,7 @@ Giao diện thư viện của GameTranslate, chạy Mednafen 1.32.1 ngay trong k
 
 ## Bắt đầu
 
-1. Windows: giải nén toàn bộ bản portable ZIP 0.2.3 rồi mở mednafen-play.exe; giữ thư mục resources bên cạnh chương trình. Linux: cấp quyền chạy cho AppImage (`chmod +x Mednafen-Play-0.3.0-linux-x64.AppImage`) rồi mở tệp. macOS: giải nén ZIP đúng kiến trúc Intel/Apple Silicon, kéo Mednafen Play.app vào Applications rồi mở.
+1. Windows: giải nén toàn bộ bản portable ZIP 0.2.3 rồi mở mednafen-play.exe; giữ thư mục resources bên cạnh chương trình. Linux: cấp quyền chạy cho AppImage (`chmod +x Mednafen-Play-0.3.0-linux-x64.AppImage`) rồi mở tệp. macOS Intel: giải nén ZIP, kéo Mednafen Play.app vào Applications rồi mở. Bản này yêu cầu macOS 14 trở lên; chưa có gói Apple Silicon được kiểm thử.
 2. Chọn **Thêm game → Chọn tệp game** hoặc **Quét thư mục**.
 3. Với đĩa CD, chọn CUE/CCD hoặc M3U cho game nhiều đĩa. Giữ các tệp BIN/IMG và các đĩa được tham chiếu cùng cấu trúc thư mục.
 4. Chọn game, nhấn **Play now / Chơi ngay**. Game nằm trong vùng bên phải sidebar. Chọn **Fullscreen** hoặc **Alt + Enter** để chỉ hiện game. **Esc** trở về cửa sổ và menu/UI, game tiếp tục chạy. **Stop game** hoặc F12 kết thúc phiên chơi bình thường.
@@ -81,7 +81,7 @@ Khi đổi bản, tự đóng ứng dụng cũ rồi chạy bản mới; không 
 - Mũi tên: di chuyển. Z/X, A/S: các nút hành động; Q/W: nút vai trên các tay cầm thông dụng. Enter: Start; Shift phải: Select. Xem ánh xạ đầy đủ cho từng hệ máy trong Settings → Controls. WonderSwan dùng mũi tên cho cụm X và WASD cho cụm Y. Mega Drive/Saturn dùng Z/X/C và A/S/D cho sáu nút.
 - F1 lưu nhanh vào ô hiện tại; F2 tải ô hiện tại; F3 sang ô tiếp theo; Shift + F3 về ô trước. Chuyển ô không tự lưu hoặc tải. Các phím này chỉ áp dụng cho save state, không thay cách lưu trong menu của game.
 - Trên bàn phím Apple, nếu F1–F3 đang điều khiển chức năng hệ thống, giữ thêm Fn/Globe hoặc bật chế độ phím chức năng chuẩn trong System Settings → Keyboard → Keyboard Shortcuts → Function Keys. Xem [hướng dẫn của Apple](https://support.apple.com/en-il/102439). Trên Mac, Alt tương ứng với Option.
-- Esc thoát fullscreen; Esc khi đang ở chế độ cửa sổ đưa về thư viện nhưng giữ game chạy. Alt + Enter đổi fullscreen. Alt + F4 đóng ứng dụng và dừng game bình thường. Các menu Settings vẫn dùng Tab và nhập chữ như thường.
+- Esc thoát fullscreen; Esc khi đang ở chế độ cửa sổ đưa về thư viện nhưng giữ game chạy. Alt + Enter đổi fullscreen. Alt + F4 (Windows/Linux) hoặc Cmd + Q (macOS) đóng ứng dụng và dừng game bình thường. Các menu Settings vẫn dùng Tab và nhập chữ như thường.
 - Các phím gốc bị trùng đã chuyển: Ctrl + F1 mở trợ giúp Mednafen; Ctrl + F2 cấu hình phím lệnh; Ctrl + Shift + F2 thêm ánh xạ; Ctrl + F3 phát hiện nút trục; Ctrl + Shift + F3 nhận lại tay cầm. F12 vẫn là phím dừng game của Mednafen.
 - Cấu hình phím đã tùy chỉnh được giữ. Để thay bằng bộ mới, chọn hệ máy trong Settings → Controls → Use recommended keys, dừng game nếu đang chạy rồi Save settings.
 
