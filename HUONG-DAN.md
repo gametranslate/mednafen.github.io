@@ -1,10 +1,10 @@
-# Mednafen Play 0.2.3 — Hướng dẫn sử dụng
+# Mednafen Play 0.3.0 — Hướng dẫn sử dụng
 
 Giao diện thư viện của GameTranslate, chạy Mednafen 1.32.1 ngay trong khung chính. Mặc định tiếng Anh; bộ chọn trên thanh đầu hỗ trợ Đức, Việt, Pháp, Tây Ban Nha, Ý, Hàn, Trung phồn thể/giản thể và Nhật. Nút mặt trăng/mặt trời chuyển sáng/tối ngay, kể cả khi đang chơi.
 
 ## Bắt đầu
 
-1. Chạy bộ cài Windows x64, hoặc giải nén toàn bộ bản ZIP rồi mở mednafen-play.exe. Giữ nguyên thư mục resources bên cạnh chương trình.
+1. Windows: giải nén toàn bộ bản portable ZIP 0.2.3 rồi mở mednafen-play.exe; giữ thư mục resources bên cạnh chương trình. Linux: cấp quyền chạy cho AppImage (`chmod +x Mednafen-Play-0.3.0-linux-x64.AppImage`) rồi mở tệp. macOS: giải nén ZIP đúng kiến trúc Intel/Apple Silicon, kéo Mednafen Play.app vào Applications rồi mở.
 2. Chọn **Thêm game → Chọn tệp game** hoặc **Quét thư mục**.
 3. Với đĩa CD, chọn CUE/CCD hoặc M3U cho game nhiều đĩa. Giữ các tệp BIN/IMG và các đĩa được tham chiếu cùng cấu trúc thư mục.
 4. Chọn game, nhấn **Play now / Chơi ngay**. Game nằm trong vùng bên phải sidebar. Chọn **Fullscreen** hoặc **Alt + Enter** để chỉ hiện game. **Esc** trở về cửa sổ và menu/UI, game tiếp tục chạy. **Stop game** hoặc F12 kết thúc phiên chơi bình thường.
@@ -13,7 +13,7 @@ Giao diện thư viện của GameTranslate, chạy Mednafen 1.32.1 ngay trong k
 7. **Clear library / Xóa thư viện** yêu cầu xác nhận, dừng phiên đang chạy rồi xóa danh sách và cài đặt riêng. ROM, BIOS, bản lưu và cài đặt chung được giữ nguyên.
 8. **Now playing** quay lại game sau khi xem Settings hoặc About. Đổi cài đặt giả lập cần dừng game rồi lưu; ngôn ngữ và sáng/tối thay đổi ngay.
 
-Ứng dụng cần Windows x64 và Microsoft Edge WebView2 Runtime. Bộ cài hỗ trợ cài WebView2 khi còn thiếu; bản ZIP cần có WebView2 sẵn trên máy. Bản ZIP không cần cài đặt, nhưng vẫn lưu dữ liệu trong hồ sơ Windows, không lưu cạnh EXE.
+Windows cần Microsoft Edge WebView2 Runtime có sẵn. Các bản không cần trình cài đặt riêng, nhưng lưu dữ liệu trong hồ sơ người dùng, không lưu cạnh tệp chạy. Xem PORTS.md và ghi chú release để biết hệ điều hành tối thiểu. macOS dùng chữ ký ad-hoc, chưa được Apple notarize; nếu bị Gatekeeper chặn, xem hướng dẫn Open Anyway của Apple trong System Settings → Privacy & Security. Linux có thể chạy AppImage không cần FUSE bằng tùy chọn `--appimage-extract-and-run`.
 
 ## Cài đặt theo cách bạn chơi
 
@@ -46,7 +46,7 @@ Mỗi mục phổ biến có giải thích bằng ngôn ngữ giao diện. **Chi
 
 ## Dữ liệu và xử lý lỗi
 
-**Cài đặt → Chung → Mở thư mục dữ liệu** mở vị trí chính xác trên máy. Mặc định là thư mục us.gametranslate.mednafen-play trong AppData/Roaming:
+**Cài đặt → Chung → Mở thư mục dữ liệu** mở vị trí chính xác trên máy. Mặc định là thư mục us.gametranslate.mednafen-play trong AppData/Roaming (Windows), ~/.local/share (Linux, hoặc XDG_DATA_HOME), hay ~/Library/Application Support (macOS):
 
 - library.json: thư viện, cấu hình chung, cấu hình riêng; library.json.bak: bản dự phòng lần lưu trước.
 - mednafen/sav: bản lưu trong game; mednafen/mcs: save state; mednafen/firmware: BIOS.
@@ -65,7 +65,7 @@ Các tùy chọn fullscreen gốc như độ phân giải, stretch và phím chu
 
 About ghi công Mednafen developers/contributors, SDL (Sam Lantinga và cộng tác viên), Tauri, React và Lucide/Feather. GameTranslate chỉ bổ sung thư viện, UI Settings, ngôn ngữ và tích hợp cửa sổ. Nút Star mở GitHub gốc; ứng dụng không tự bấm star. Logo góc dưới bên trái mở https://gametranslate.us.
 
-Không kèm ROM/BIOS. Mã nguồn Mednafen tương ứng, giấy phép và notices nằm trong resources; mã nguồn frontend/adapter có gói ZIP riêng. Bản Windows chưa ký số. Linux, macOS và Android chưa có bản chạy game; xem PORTS.md. Bộ cài đã được kiểm tra bằng cách giải nén ứng dụng, chưa chạy cài/gỡ trên máy Windows sạch.
+Không kèm ROM/BIOS. Mã nguồn Mednafen tương ứng, giấy phép và notices nằm trong resources; mã nguồn frontend/adapter có gói ZIP riêng. Bản Windows chưa ký số. Bản Linux/macOS dùng engine được biên dịch từ mã nguồn Mednafen gốc cùng adapter hiển thị/điều khiển của GameTranslate; đây không phải bản chính thức của Mednafen. Android chưa hỗ trợ. Xem PORTS.md và VALIDATION.md để biết kết quả kiểm thử, yêu cầu nền tảng và giới hạn.
 
 ## Nếu game không hiện hình
 

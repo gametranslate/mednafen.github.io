@@ -1,6 +1,8 @@
-# Mednafen Play 0.2.3
+# Mednafen Play 0.3.0
 
-An independent Windows desktop frontend for Mednafen 1.32.1 by GameTranslate. The green/cream Library design includes embedded gameplay, a game-only fullscreen view, day/night switching, ten UI languages, and an approachable settings catalog containing all 7,908 engine keys. English is the default. Esc leaves fullscreen and keeps the game running.
+An independent desktop frontend for Mednafen 1.32.1 by GameTranslate. The green/cream Library design includes embedded gameplay, a game-only fullscreen view, day/night switching, ten UI languages, and an approachable settings catalog generated from the platform engine. English is the default. Esc leaves fullscreen and keeps the game running.
+
+0.3.0 adds Linux and macOS builds. Unix platforms render game frames inside the main window through a private local socket; there is no separate game window. The original emulation source is compiled with our SDL display/input adapter. Windows uses the existing native window adapter and its published 0.2.3 portable ZIP remains available. See [releases](https://github.com/gametranslate/mednafen.github.io/releases) for tested artifacts and their platform requirements.
 
 See [the Vietnamese user guide](HUONG-DAN.md), [validation](VALIDATION.md) and [port status](PORTS.md).
 
@@ -11,6 +13,24 @@ See [the Vietnamese user guide](HUONG-DAN.md), [validation](VALIDATION.md) and [
 0.2.1 adds ROM drop-to-play (including the game surface), a confirmed Clear library action that preserves files, graceful stop on window close, recovery for hung sessions and bounded startup with first-frame diagnostics.
 
 ## Development
+
+On Linux or macOS, install the native dependencies listed in `.github/workflows/desktop-ports.yml`, plus Node 22+, Python 3.12+ and stable Rust. Use a separate checkout from Windows so platform engines cannot be mixed:
+
+```sh
+python3 scripts/prepare_unix.py --jobs 3
+npm ci
+npm test
+cargo test --manifest-path src-tauri/Cargo.toml
+npm run desktop:build
+```
+
+Tauri selects `tauri.linux.conf.json` or `tauri.macos.conf.json` automatically. Linux produces an AppImage; macOS produces a native `.app`, packaged as a ZIP after validation. The Unix preparation script verifies the pinned upstream source, builds the display adapter, stages native libraries, records runtime hashes and regenerates the complete settings catalog. macOS builds use ad-hoc signing; they are not Apple-notarized.
+
+`python3 scripts/check_unix_packages.py` tests extracted packages using an externally supplied ROM in `.cache/fixtures/test.wsc`. The fixture is never included in public packages. Linux tests force X11 on an isolated Xvfb display; macOS tests use the CI desktop. Tests inspect real canvas pixels, save states and emulated RTC speed, plus native fullscreen/Esc, stop/replay and process cleanup. Synthetic WebView events do not prove physical keyboard/controller behavior. Do not set `MEDNAFEN_PLAY_BACKGROUND_QA` for these Unix tests.
+
+`python scripts/package_source.py` creates the corresponding source archive from committed project files, including platform configs, workflow, adapter sources and the verified upstream source tarball.
+
+### Windows
 
 Windows x64, Node/npm, stable Rust MSVC, Visual Studio C++ Build Tools with Windows SDK, WebView2, Python 3.12+ and 7-Zip for package extraction checks.
 
@@ -55,6 +75,7 @@ Native tests use an isolated `.cache` home. The window is created hidden from th
 - React/TypeScript: library, settings, translations, About and player layout.
 - Rust/Tauri: persistence, process lifecycle, BIOS validation and native window management.
 - `native/sdl-host.c`: hidden-window reparenting before presentation, aspect-preserving GPU/software output and fullscreen hotkeys.
+- `native/sdl-stream.c` and `src-tauri/src/player_stream.rs`: Linux/macOS frame and input transport over a private Unix socket, with bounded frames and per-session cleanup.
 
 The library is authoritative for settings. On launch, schema defaults are overlaid by global and per-game choices. Input mappings changed inside the emulator are synchronized after graceful exit. Fullscreen switching, monitor selection and viewport fitting belong to the frontend; the backbuffer is cleared every frame to prevent resize artifacts. Engine-only fullscreen sizing controls remain visible with an explanation instead of editable controls that have no effect. Advanced upstream descriptions remain English when not localized.
 

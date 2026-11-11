@@ -40,21 +40,29 @@ jobs:
           cache: npm
       - name: Linux dependencies
         if: runner.os == 'Linux'
+        timeout-minutes: 12
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends build-essential pkg-config libsdl2-dev libflac-dev libasound2-dev zlib1g-dev libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev xvfb dbus-x11 xauth
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update -qq
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends build-essential pkg-config libsdl2-dev libflac-dev libasound2-dev zlib1g-dev libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev xvfb dbus-x11 xauth
       - name: macOS dependencies
         if: runner.os == 'macOS'
         run: brew install pkg-config sdl2 flac
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: engine-cache
         with:
           path: .cache/unix-engine
-          key: mednafen-1.32.1-${{ runner.os }}-${{ runner.arch }}-v1
+          key: mednafen-1.32.1-${{ runner.os }}-${{ runner.arch }}-v2-${{ github.run_id }}
+          restore-keys: mednafen-1.32.1-${{ runner.os }}-${{ runner.arch }}-v2-
       - name: Build native emulator and adapter
         run: python3 scripts/prepare_unix.py --jobs 3 > engine-build.log 2>&1
+      - uses: actions/cache/save@v4
+        if: always() && steps.engine-cache.outcome == 'success'
+        with:
+          path: .cache/unix-engine
+          key: ${{ steps.engine-cache.outputs.cache-primary-key }}
       - name: Frontend and Rust tests
         run: |
           npm ci

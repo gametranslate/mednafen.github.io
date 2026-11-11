@@ -60,7 +60,7 @@ if not (BUILD/'Makefile').exists():
     run(configure, cwd=BUILD, env=env)
 # The adapter is an executable object, ahead of dynamic SDL. The original core
 # source stays intact; SDL symbols are resolved with dlsym(RTLD_NEXT).
-configured = re.search(r'^LDFLAGS\s*=\s*(.*)$', (BUILD/'Makefile').read_text(), re.M)
+configured = re.search(r'^LDFLAGS[ \t]*=[ \t]*(.*)$', (BUILD/'Makefile').read_text(), re.M)
 link_flags = (configured[1] + ' ' if configured else '') + str(adapter) + (' -ldl' if SYSTEM == 'Linux' else '')
 # LDFLAGS is not a Make dependency: force relinking after recompiling the adapter.
 (BUILD/'src/mednafen').unlink(missing_ok=True)
