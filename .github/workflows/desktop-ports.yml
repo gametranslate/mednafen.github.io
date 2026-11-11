@@ -60,8 +60,10 @@ jobs:
         id: engine-cache
         with:
           path: .cache/unix-engine
-          key: mednafen-1.32.1-${{ runner.os }}-${{ runner.arch }}-v2-${{ github.run_id }}
-          restore-keys: mednafen-1.32.1-${{ runner.os }}-${{ runner.arch }}-v2-
+          key: mednafen-1.32.1-${{ matrix.os }}-${{ runner.arch }}-v3-${{ github.run_id }}
+          restore-keys: |
+            mednafen-1.32.1-${{ matrix.os }}-${{ runner.arch }}-v3-
+            ${{ matrix.os == 'macos-15-intel' && 'mednafen-1.32.1-macOS-X64-v2-' || 'no-legacy-platform-cache-' }}
       - name: Build native emulator and adapter
         run: python3 scripts/prepare_unix.py --jobs 3 > engine-build.log 2>&1
       - uses: actions/cache/save@v4
