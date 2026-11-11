@@ -692,6 +692,7 @@ fn main() {
             qa::qa_context,
             qa::qa_probe,
             qa::qa_report,
+            qa::qa_request_close,
             player::player_bounds,
             player::player_visible,
             player::player_fullscreen,
@@ -720,6 +721,19 @@ fn main() {
             save_appearance,
             open_project_link
         ])
-        .run(context)
-        .expect("Unable to start Mednafen Play");
+        .build(context)
+        .expect("Unable to start Mednafen Play")
+        .run(|_app, _event| {
+            // Cmd+Q / the macOS Quit menu must use the same dirty-settings guard
+            // and graceful emulator shutdown as closing the main window.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::ExitRequested { api, .. } = _event {
+                if !_app.state::<Backend>().quitting.load(Ordering::SeqCst) {
+                    if let Some(window) = _app.get_webview_window("main") {
+                        api.prevent_exit();
+                        let _ = window.close();
+                    }
+                }
+            }
+        });
 }

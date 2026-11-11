@@ -56,7 +56,10 @@ for driver in ['softfb','opengl']:
         try:os.kill(pid,0)
         except ProcessLookupError:pass
         else:raise AssertionError('Emulator process survived close: '+str(pid))
-    result.update({'rtcRates':rates,'closeCleansEngine':True,'romSha256Unchanged':hashlib.sha256(ROM.read_bytes()).hexdigest(),'platform':platform.system(),'architecture':platform.machine()})
+    lifecycle=(home/'lifecycle.log').read_text()
+    assert lifecycle.count('Game stopped gracefully.')>=2,lifecycle
+    assert 'was terminated' not in lifecycle,lifecycle
+    result.update({'rtcRates':rates,'closeCleansEngine':True,'nativeCloseGraceful':True,'romSha256Unchanged':hashlib.sha256(ROM.read_bytes()).hexdigest(),'platform':platform.system(),'architecture':platform.machine()})
     (REPORT/f'{driver}-ui.json').write_text(json.dumps(result,indent=2))
     results.append(result)
     print(driver,'real UI/engine PASS',rates,flush=True)

@@ -43,6 +43,15 @@ pub fn qa_report(report: serde_json::Value) -> Result<(), String> {
     let home = directory()?;
     fs::write(home.join("ui-result.json"), serde_json::to_vec_pretty(&report).map_err(err)?).map_err(err)
 }
+#[tauri::command]
+pub fn qa_request_close(app: tauri::AppHandle) -> Result<(), String> {
+    directory()?;
+    #[cfg(target_os = "macos")]
+    app.exit(0); // Same native exit path as Cmd+Q; no global input injection.
+    #[cfg(not(target_os = "macos"))]
+    app.get_webview_window("main").ok_or("Window unavailable")?.close().map_err(err)?;
+    Ok(())
+}
 pub fn page_loaded(webview: &tauri::Webview, payload: &tauri::webview::PageLoadPayload<'_>) {
     if payload.event() != tauri::webview::PageLoadEvent::Finished || directory().is_err() { return; }
     let Some(path) = std::env::var_os("MEDNAFEN_PLAY_QA_SCRIPT") else { return; };

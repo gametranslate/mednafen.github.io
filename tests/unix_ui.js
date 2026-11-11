@@ -63,7 +63,7 @@
   const replayPid=(await invoke('qa_probe',{slot:0})).pid;assert(pid!==replayPid,'Replay reused stopped process');
   assert(errors.length===0,errors.join('\n'));checks.push('stop-replay','no-console-errors');
   await invoke('qa_report',{report:{status:'PASS',driver:context.driver,pid,replayPid,colors:colors.size,canvas:{width:canvas.width,height:canvas.height},checks,samples,errors}});
-  await invoke('quit_app');
+  await invoke('qa_request_close');
  }catch(error){
   await invoke('qa_report',{report:{status:'FAIL',error:String(error),stack:error.stack,checks,samples,errors,log:await invoke('get_log').catch(()=>''),body:document.body.innerText.slice(-4000)}});
   await invoke('quit_app').catch(()=>{});
