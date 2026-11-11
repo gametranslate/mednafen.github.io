@@ -30,6 +30,8 @@ On Linux set `NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1` for `npm run desktop:bui
 
 `python scripts/package_source.py` creates the corresponding source archive from committed project files, including platform configs, workflow, adapter sources and the verified upstream source tarball.
 
+CI does not require or store a permanent game fixture. Maintainers can temporarily supply a draft-release asset through the `fixture_asset_id` dispatch input or the `MEDNAFEN_QA_FIXTURE_ASSET_ID` repository variable, then delete both the draft and variable after testing. Without a fixture, packaging reports `NOT_RUN` for gameplay rather than claiming a pass. Only package reports with full gameplay PASS qualify for release.
+
 ### Windows
 
 Windows x64, Node/npm, stable Rust MSVC, Visual Studio C++ Build Tools with Windows SDK, WebView2, Python 3.12+ and 7-Zip for package extraction checks.

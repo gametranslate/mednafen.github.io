@@ -1,6 +1,10 @@
 """Validate extracted desktop artifacts; publishable outputs contain no QA files."""
 from pathlib import Path
-import hashlib,json,os,platform,plistlib,shutil,subprocess
+import argparse,hashlib,json,os,platform,plistlib,shutil,subprocess
+
+parser=argparse.ArgumentParser()
+parser.add_argument('--skip-game-tests',action='store_true',help='Package only; explicitly records NOT_RUN, never PASS')
+args=parser.parse_args()
 
 ROOT=Path(__file__).resolve().parents[1]
 VERSION=json.loads((ROOT/'package.json').read_text())['version']
@@ -45,16 +49,18 @@ for name,expected in json.loads(manifests[0].read_text()).items():
     path=manifests[0].parent/name
     assert hashlib.sha256(path.read_bytes()).hexdigest()==expected,'Packager changed engine runtime: '+name
 fixture=Path(env['MEDNAFEN_PLAY_TEST_ROM'])
-fixture_hash=hashlib.sha256(fixture.read_bytes()).digest()
+fixture_hash=hashlib.sha256(fixture.read_bytes()).digest() if fixture.is_file() else None
 for path in extracted.rglob('*'):
     if not path.is_file():continue
     assert path.suffix.lower() not in {'.wsc','.ws','.rom','.sav','.state','.mc0','.mc1'},'Private game data in package: '+str(path)
     assert path.name not in {'library.json','mednafen.cfg','play-profile.cfg','ui-result.json'},'Profile in package: '+str(path)
-    if path.stat().st_size==fixture.stat().st_size:
+    if fixture_hash and path.stat().st_size==fixture.stat().st_size:
         assert hashlib.sha256(path.read_bytes()).digest()!=fixture_hash,'Fixture in package: '+str(path)
-subprocess.run(command,check=True,env=env,cwd=ROOT)
+if not args.skip_game_tests:
+    assert fixture_hash,'Supply .cache/fixtures/test.wsc or explicitly use --skip-game-tests'
+    subprocess.run(command,check=True,env=env,cwd=ROOT)
 if system=='Linux':shutil.copy2(package,destination);destination.chmod(0o755)
-report={'status':'PASS','platform':system,'architecture':arch,'package':destination.name,'bytes':destination.stat().st_size,'sha256':hashlib.sha256(destination.read_bytes()).hexdigest(),'runtimeManifestVerified':True,'testedExtractedPackage':True,'romNotIncluded':True}
+report={'status':'NOT_RUN' if args.skip_game_tests else 'PASS','platform':system,'architecture':arch,'package':destination.name,'bytes':destination.stat().st_size,'sha256':hashlib.sha256(destination.read_bytes()).hexdigest(),'runtimeManifestVerified':True,'testedExtractedPackage':not args.skip_game_tests,'romNotIncluded':True}
 if system=='Darwin':report['minimumMacOS']=minimum;report['signing']='ad-hoc';report['notarized']=False
 (RELEASE/f'validation-{system.lower()}-{arch}.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2),flush=True)

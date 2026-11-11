@@ -3,6 +3,11 @@ on:
   push:
     branches: [codex/linux-macos]
   workflow_dispatch:
+    inputs:
+      fixture_asset_id:
+        description: Optional release asset ID for an authorized private QA fixture
+        type: string
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -32,6 +37,7 @@ jobs:
       CARGO_TERM_COLOR: never
       NO_STRIP: 'true'
       APPIMAGE_EXTRACT_AND_RUN: '1'
+      QA_FIXTURE_ASSET: ${{ inputs.fixture_asset_id || vars.MEDNAFEN_QA_FIXTURE_ASSET_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -74,14 +80,24 @@ jobs:
       - name: Build desktop package
         run: npm run desktop:build
       - name: Download temporary authorized test fixture
+        if: env.QA_FIXTURE_ASSET != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p .cache/fixtures
-          gh api -H 'Accept: application/octet-stream' repos/gametranslate/mednafen.github.io/releases/assets/736017926 > .cache/fixtures/qa-wswan.zip
+          [[ "$QA_FIXTURE_ASSET" =~ ^[0-9]+$ ]]
+          gh api -H 'Accept: application/octet-stream' "repos/${{ github.repository }}/releases/assets/$QA_FIXTURE_ASSET" > .cache/fixtures/qa-wswan.zip
           python3 -c "import zipfile; zipfile.ZipFile('.cache/fixtures/qa-wswan.zip').extractall('.cache/fixtures')"
-      - name: Test packaged application
-        run: python3 scripts/check_unix_packages.py
+      - name: Validate packaged application
+        run: |
+          if [ -n "$QA_FIXTURE_ASSET" ]; then
+            python3 scripts/check_unix_packages.py
+          else
+            python3 scripts/check_unix_packages.py --skip-game-tests
+          fi
+      - name: Remove temporary fixture files
+        if: always()
+        run: rm -f .cache/fixtures/test.wsc .cache/fixtures/qa-wswan.zip
       - uses: actions/upload-artifact@v4
         if: always()
         with:
