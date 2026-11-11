@@ -1,0 +1,118 @@
+"""Build the pinned Mednafen source with our Unix display adapter and stage its runtime.
+
+Linux: install build-essential/pkg-config/libsdl2-dev/libflac-dev/zlib1g-dev/libasound2-dev.
+macOS: install pkg-config, sdl2 and flac (for example with Homebrew).
+Build outputs are isolated from the Windows runtime when --output-root is supplied.
+"""
+from pathlib import Path
+import argparse, hashlib, json, os, platform, re, shlex, shutil, subprocess, tarfile, urllib.request
+
+ROOT = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser()
+parser.add_argument('--output-root', type=Path, default=ROOT)
+parser.add_argument('--jobs', type=int, default=2)
+args = parser.parse_args()
+DEST = args.output_root.resolve()
+SYSTEM = platform.system()
+assert SYSTEM in ['Linux', 'Darwin'], 'Run this script on Linux or macOS'
+CACHE = DEST / '.cache/unix-engine'
+RES = DEST / 'src-tauri/resources'
+ENGINE = RES / 'engine'
+for folder in [CACHE, ENGINE]: folder.mkdir(parents=True, exist_ok=True)
+assert not (ENGINE / 'mednafen.exe').exists(), 'Use an isolated output root; do not mix Windows and Unix engines'
+
+def run(command, **kwargs):
+    print('+', shlex.join(map(str, command)), flush=True)
+    subprocess.run(list(map(str, command)), check=True, **kwargs)
+
+def output(command):
+    return subprocess.check_output(list(map(str, command)), text=True).strip()
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+archive = RES / 'mednafen-1.32.1.tar.xz'
+expected = 'de7eb94ab66212ae7758376524368a8ab208234b33796625ca630547dbc83832'
+if not archive.exists():
+    cached = ROOT / 'src-tauri/resources' / archive.name
+    if cached.is_file(): shutil.copy2(cached, archive)
+    else: urllib.request.urlretrieve('https://mednafen.github.io/releases/files/' + archive.name, archive)
+assert digest(archive) == expected, 'Upstream source SHA-256 mismatch'
+SOURCE = CACHE / 'mednafen'
+if not SOURCE.exists():
+    with tarfile.open(archive) as tar: tar.extractall(CACHE, filter='data')
+BUILD = CACHE / ('build-' + platform.machine())
+BUILD.mkdir(exist_ok=True)
+env = dict(os.environ)
+if SYSTEM == 'Darwin':
+    env.setdefault('MACOSX_DEPLOYMENT_TARGET', '13.0')
+    # Homebrew keeps some formulae keg-only; pkg-config needs their metadata.
+    prefixes = [output(['brew', '--prefix', formula]) for formula in ['sdl2', 'flac']]
+    env['PKG_CONFIG_PATH'] = ':'.join(str(Path(p)/'lib/pkgconfig') for p in prefixes) + ':' + env.get('PKG_CONFIG_PATH', '')
+sdl_flags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', 'sdl2'], env=env, text=True))
+adapter = BUILD / 'sdl-stream.o'
+run([env.get('CC', 'cc'), '-O2', '-fPIC', *sdl_flags, '-c', ROOT/'native/sdl-stream.c', '-o', adapter], env=env)
+if not (BUILD/'Makefile').exists():
+    configure = [SOURCE/'configure', '--disable-dependency-tracking', '--disable-nls', '--disable-jack']
+    if SYSTEM == 'Darwin':
+        architecture = 'aarch64' if platform.machine() == 'arm64' else platform.machine()
+        configure += ['--build=' + architecture + '-apple-darwin' + platform.release()]
+    run(configure, cwd=BUILD, env=env)
+# The adapter is an executable object, ahead of dynamic SDL. The original core
+# source stays intact; SDL symbols are resolved with dlsym(RTLD_NEXT).
+configured = re.search(r'^LDFLAGS\s*=\s*(.*)$', (BUILD/'Makefile').read_text(), re.M)
+link_flags = (configured[1] + ' ' if configured else '') + str(adapter) + (' -ldl' if SYSTEM == 'Linux' else '')
+run(['make', '-j' + str(max(1, args.jobs)), 'LDFLAGS=' + link_flags], cwd=BUILD, env=env)
+executable = ENGINE/'mednafen'
+shutil.copy2(BUILD/'src/mednafen', executable)
+executable.chmod(0o755)
+libs = ENGINE/'lib'
+libs.mkdir(exist_ok=True)
+if SYSTEM == 'Darwin':
+    pending = [(BUILD/'src/mednafen', executable)]
+    copied = {}
+    while pending:
+        original, target = pending.pop(0)
+        dependencies = [line.strip().split(' (')[0] for line in output(['otool', '-L', original]).splitlines()[1:]]
+        for dependency in dependencies:
+            if dependency.startswith(('/usr/lib/', '/System/Library/')) or dependency == str(original): continue
+            if dependency.startswith('@'):
+                if dependency.endswith('/'+original.name): continue
+                raise RuntimeError('Unresolved dependency: ' + dependency)
+            origin = Path(dependency).resolve()
+            assert origin.is_file(), dependency
+            destination = libs/origin.name
+            if origin not in copied:
+                if destination.exists() and destination.read_bytes()!=origin.read_bytes():
+                    raise RuntimeError('Conflicting library basename: '+origin.name)
+                shutil.copy2(origin,destination);destination.chmod(0o755)
+                copied[origin]=destination
+                pending.append((origin,destination))
+            replacement = '@loader_path/' + ('lib/' if target==executable else '') + destination.name
+            run(['install_name_tool','-change',dependency,replacement,target])
+        if target!=executable: run(['install_name_tool','-id','@rpath/'+target.name,target])
+    for path in [*libs.iterdir(),executable]: run(['codesign','--force','--sign','-',path])
+else:
+    # Core libraries are supplied by the host/AppImage. Stage codec/SDL libraries
+    # beside the engine, and use a relative search path rather than build paths.
+    wanted = ('libSDL2','libFLAC','libogg','libz.so','libzstd','libiconv','libcharset')
+    for line in output(['ldd',executable]).splitlines():
+        match=re.match(r'\s*(\S+)\s+=>\s+(\S+)',line)
+        if match and match[1].startswith(wanted):
+            source=Path(match[2]);assert source.is_file(),line
+            shutil.copy2(source,libs/match[1])
+    run(['patchelf','--set-rpath','$ORIGIN/lib',executable])
+    for library in libs.iterdir(): run(['patchelf','--set-rpath','$ORIGIN',library])
+for name in ['COPYING','ChangeLog']:
+    shutil.copy2(SOURCE/name,ENGINE/name)
+shutil.copytree(SOURCE/'Documentation',ENGINE/'Documentation',dirs_exist_ok=True)
+for name in ['THIRD-PARTY.txt','SDL-LICENSE.txt','FRONTEND-LICENSES.txt']:
+    original=ROOT/'src-tauri/resources'/name
+    if original.resolve()!=(RES/name).resolve(): shutil.copy2(original,RES/name)
+runtime = {p.relative_to(ENGINE).as_posix():digest(p) for p in [executable,*sorted(libs.iterdir())]}
+(ENGINE/'RUNTIME-MANIFEST.json').write_text(json.dumps(runtime,sort_keys=True),encoding='utf-8')
+manifest={'platform':SYSTEM,'architecture':platform.machine(),'upstreamSourceSha256':expected,
+          'adapterSourceSha256':digest(ROOT/'native/sdl-stream.c'),'runtime':runtime,
+          'sdlVersion':output(['pkg-config','--modversion','sdl2'])}
+(RES/'HOST-MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+print('Unix runtime staged:',ENGINE,flush=True)

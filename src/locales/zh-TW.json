@@ -427,7 +427,7 @@
   "BUILT ON OPEN SOURCE": "基於開源",
   "About Mednafen Play": "關於梅德納芬玩樂",
   "A friendlier way to enjoy Mednafen.": "以更友善的方式享受 Mednafen。",
-  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "仿真屬於原始 Mednafen 計畫及其貢獻者。 GameTranslate 為日常玩家添加了庫、設定介面、翻譯和應用程式內視窗整合。 Mednafen 模擬器二進位檔案未更改。",
+  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "模擬程式碼來自原版 Mednafen 專案及其貢獻者。GameTranslate 加入遊戲庫、設定介面、翻譯以及畫面和輸入整合。Windows 使用原版引擎；Linux 和 macOS 使用原版模擬原始碼並加入顯示轉接程式進行編譯。",
   "This is an independent frontend, not an official Mednafen release. The original authors retain ownership of their code.": "這是一個獨立的前端，不是 Mednafen 的官方版本。原作者保留其程式碼的所有權。",
   "Enjoying it? Thank the original creators.": "享受嗎？感謝原作者。",
   "Give the upstream project a star on GitHub. This opens the original project; starring is your choice.": "在 GitHub 上給上游專案一顆星。這將打開原始項目；主演是你的選擇。",

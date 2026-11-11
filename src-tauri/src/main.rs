@@ -2,6 +2,7 @@
 mod model;
 mod player;
 mod session;
+mod qa;
 use model::*;
 use serde::Serialize;
 use session::lifecycle_log;
@@ -379,11 +380,16 @@ fn launch_game_inner(app: &tauri::AppHandle, b: &Backend, id: String) -> Result<
         return Err("Mednafen was not found. Check Settings → General.".into());
     }
     verify_game(Path::new(&game.path))?;
-    for (name, expected) in [
+    #[cfg(windows)]
+    let verified_files: Vec<(String, String)> = [
         ("mednafen.exe", env!("MP_ENGINE_SHA")),
         ("SDL2.dll", env!("MP_HOST_SHA")),
         ("SDL2_original.dll", env!("MP_SDL_SHA")),
-    ] {
+    ].into_iter().map(|(name, hash)| (name.to_string(), hash.to_string())).collect();
+    #[cfg(not(windows))]
+    let verified_files: Vec<(String, String)> = serde_json::from_str::<std::collections::BTreeMap<String, String>>(env!("MP_RUNTIME_MANIFEST"))
+        .map_err(err)?.into_iter().collect();
+    for (name, expected) in verified_files {
         let file = executable.parent().unwrap().join(name);
         if fs::read(file)
             .map(|bytes| format!("{:x}", Sha256::digest(bytes)) != expected)
@@ -432,6 +438,7 @@ fn launch_game_inner(app: &tauri::AppHandle, b: &Backend, id: String) -> Result<
     #[cfg(windows)]
     cmd.creation_flags(0x08000000);
     player::prepare(app)?;
+    player::configure_command(app, &mut cmd)?;
     let child = cmd
         .spawn()
         .map_err(|e| format!("Unable to start Mednafen: {e}"))?;
@@ -633,6 +640,7 @@ fn main() {
         }
     }
     tauri::Builder::default()
+        .on_page_load(qa::page_loaded)
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .manage(player::Player::default())
@@ -646,9 +654,9 @@ fn main() {
             let resource = app
                 .path()
                 .resource_dir()?
-                .join("resources/engine/mednafen.exe");
+                .join("resources/engine").join(env!("MP_ENGINE_NAME"));
             let fallback =
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/engine/mednafen.exe");
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/engine").join(env!("MP_ENGINE_NAME"));
             let default_engine = if resource.is_file() {
                 resource
             } else {
@@ -681,10 +689,14 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            qa::qa_context,
+            qa::qa_probe,
+            qa::qa_report,
             player::player_bounds,
             player::player_visible,
             player::player_fullscreen,
             player::player_status,
+            player::player_frame,
             session::stop_game,
             player::focus_game,
             player::player_key,

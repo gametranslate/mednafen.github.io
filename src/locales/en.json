@@ -24,7 +24,7 @@
   "BUILT ON OPEN SOURCE": "BUILT ON OPEN SOURCE",
   "About Mednafen Play": "About Mednafen Play",
   "A friendlier way to enjoy Mednafen.": "A friendlier way to enjoy Mednafen.",
-  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.",
+  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "Emulation comes from the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and embedded display/input integration. Windows uses the original engine binary; Linux and macOS build the original emulation source with our display adapter.",
   "This is an independent frontend, not an official Mednafen release. The original authors retain ownership of their code.": "This is an independent frontend, not an official Mednafen release. The original authors retain ownership of their code.",
   "Enjoying it? Thank the original creators.": "Enjoying it? Thank the original creators.",
   "Give the upstream project a star on GitHub. This opens the original project; starring is your choice.": "Give the upstream project a star on GitHub. This opens the original project; starring is your choice.",

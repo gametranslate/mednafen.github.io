@@ -48,7 +48,8 @@ export async function saveAppearance(values:{theme?:string;language?:string}):Pr
 export async function playerBounds(bounds:{x:number;y:number;width:number;height:number},visible:boolean){if(desktop)await invoke('player_bounds',{bounds,visible});}
 export async function playerVisible(visible:boolean){if(desktop)await invoke('player_visible',{visible});}
 export async function playerFullscreen(value:boolean){if(desktop)await invoke('player_fullscreen',{value});}
-export async function playerStatus():Promise<{fullscreen:boolean;embedded:boolean;ready:boolean;frames:number}>{return desktop?invoke('player_status'):{fullscreen:false,embedded:false,ready:false,frames:0};}
+export async function playerStatus():Promise<{transport:'native'|'canvas';fullscreen:boolean;embedded:boolean;ready:boolean;frames:number}>{return desktop?invoke('player_status'):{transport:'native',fullscreen:false,embedded:false,ready:false,frames:0};}
+export async function playerFrame(after:number):Promise<ArrayBuffer>{return invoke('player_frame',{after});}
 export async function stopGame(){return desktop?invoke<boolean>('stop_game'):false;}
 export async function focusGame(){if(desktop)await invoke('focus_game');}
 export async function gameKey(scancode:number,down:boolean,modifiers:number,character?:number){if(desktop)await invoke('player_key',{scancode,down,modifiers,character});}

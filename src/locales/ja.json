@@ -427,7 +427,7 @@
   "BUILT ON OPEN SOURCE": "オープンソースで構築",
   "About Mednafen Play": "メドナフェン・プレイについて",
   "A friendlier way to enjoy Mednafen.": "メドナフェンをよりフレンドリーに楽しむ方法。",
-  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "エミュレーションは、元の Mednafen プロジェクトとその貢献者に属します。 GameTranslate は、日常のプレーヤー向けにライブラリ、設定インターフェイス、翻訳、アプリ内ウィンドウの統合を追加します。 Mednafen エミュレータのバイナリは変更されていません。",
+  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "エミュレーションコードは元のMednafenプロジェクトと貢献者によるものです。GameTranslateはライブラリ、設定画面、翻訳、映像と入力の統合を追加しています。Windowsでは元のエンジンを使用し、LinuxとmacOSでは元のエミュレーションソースに表示アダプターを組み込んでビルドします。",
   "This is an independent frontend, not an official Mednafen release. The original authors retain ownership of their code.": "これは独立したフロントエンドであり、Mednafen の公式リリースではありません。元の作成者はコードの所有権を保持します。",
   "Enjoying it? Thank the original creators.": "楽しんでいますか？オリジナルのクリエイターに感謝します。",
   "Give the upstream project a star on GitHub. This opens the original project; starring is your choice.": "GitHub 上で上流のプロジェクトにスターを付けます。これにより、元のプロジェクトが開きます。主演はあなたの選択です。",

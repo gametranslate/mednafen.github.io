@@ -427,7 +427,7 @@
   "BUILT ON OPEN SOURCE": "오픈 소스를 기반으로 구축됨",
   "About Mednafen Play": "Mednafen Play 소개",
   "A friendlier way to enjoy Mednafen.": "Mednafen을 더욱 친근하게 즐기는 방법.",
-  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "에뮬레이션은 원래 Mednafen 프로젝트와 그 기여자에 속합니다. GameTranslate는 일상적인 플레이어를 위한 라이브러리, 설정 인터페이스, 번역 및 인앱 창 통합을 추가합니다. Mednafen 에뮬레이터 바이너리는 변경되지 않았습니다.",
+  "Emulation belongs to the original Mednafen project and its contributors. GameTranslate adds the library, settings interface, translations and in-app window integration for everyday players. The Mednafen emulator binary is unchanged.": "에뮬레이션 코드는 원본 Mednafen 프로젝트와 기여자들의 작업입니다. GameTranslate는 라이브러리, 설정, 번역 및 화면·입력 통합을 제공합니다. Windows는 원본 엔진을 사용하며 Linux와 macOS는 원본 에뮬레이션 소스와 화면 어댑터를 함께 빌드합니다.",
   "This is an independent frontend, not an official Mednafen release. The original authors retain ownership of their code.": "이것은 공식 Mednafen 릴리스가 아닌 독립적인 프런트엔드입니다. 원저작자는 자신의 코드에 대한 소유권을 보유합니다.",
   "Enjoying it? Thank the original creators.": "즐기고 있나요? 원작자분들께 감사드립니다.",
   "Give the upstream project a star on GitHub. This opens the original project; starring is your choice.": "GitHub에서 업스트림 프로젝트에 별점을 부여하세요. 원본 프로젝트가 열립니다. 주연은 당신의 선택입니다.",

@@ -19,6 +19,8 @@ pub struct Player {
     pub fullscreen: Mutex<bool>,
     pub parent: AtomicUsize,
     clip: Mutex<Option<Clip>>,
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    bridge: platform::Bridge,
 }
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct Clip {
@@ -30,6 +32,7 @@ struct Clip {
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PlayerStatus {
+    pub transport: &'static str,
     pub fullscreen: bool,
     pub embedded: bool,
     pub ready: bool,
@@ -439,7 +442,10 @@ mod platform {
         Ok(())
     }
 }
-#[cfg(not(windows))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[path = "player_stream.rs"]
+mod platform;
+#[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
 mod platform {
     pub fn parent_id(_: &tauri::AppHandle) -> Result<String, String> {
         Err("Embedded playback is not available on this platform yet.".into())
@@ -478,6 +484,20 @@ mod platform {
     }
 }
 pub use platform::{install_drop_receiver, parent_id, prepare};
+pub fn configure_command(app: &tauri::AppHandle, command: &mut std::process::Command) -> Result<(), String> {
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    return platform::configure_command(app, command);
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    { let _ = (app, command); Ok(()) }
+}
+#[tauri::command]
+pub fn player_frame(app: tauri::AppHandle, after: u64) -> tauri::ipc::Response {
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let bytes = platform::frame(&app, after);
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    let bytes = { let _ = (app, after); Vec::<u8>::new() };
+    tauri::ipc::Response::new(bytes)
+}
 pub fn ready(app: &tauri::AppHandle) -> bool {
     platform::frames(app) > 0
 }
@@ -515,6 +535,7 @@ pub fn player_status(app: tauri::AppHandle) -> PlayerStatus {
     let fullscreen = *app.state::<Player>().fullscreen.lock().unwrap();
     let frames = platform::frames(&app);
     PlayerStatus {
+        transport: if cfg!(windows) { "native" } else { "canvas" },
         fullscreen,
         embedded: platform::child(&app).is_some(),
         ready: frames > 0,
